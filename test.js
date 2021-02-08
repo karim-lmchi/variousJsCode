@@ -1,3 +1,4 @@
 function Test() {
-    return 'this is a test';
+    let result = "this is a test";
+    return result;
 }
