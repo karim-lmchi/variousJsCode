@@ -1,52 +1,82 @@
 function MoleculeToAtome() {
-    var word = 'HMgPe4';
-    var wordParenthese = '(HSO3)2';
-    var wordHook = '[H(SO3)2]2';
-    var obj = {};
+    var formula = 'ABC4[F(GBH2)2]2';
+    var result = {};
 
     var regexParenthese = /(\((.*?)\))+.{1}/gm;
-    var arrayParentheses = [...wordParenthese.matchAll(regexParenthese)];
     var regexHook = /\[(.*?)\]+.{1}/gm;
-    var arrayHook = [...word.matchAll(regexHook)];
+    
+    var arrayHook = [...formula.matchAll(regexHook)];
+    for (let element of arrayHook) {
+        formula = formula.replace(element[0], '');
+    }
+    var arrayParentheses = [...formula.matchAll(regexParenthese)];
+    for (let element of arrayParentheses) {
+        formula = formula.replace(element[0], '');
+    }
 
-    // for (let element of arrayHook) {
-    //     word = word.replace(element[0], '');
-    // }
-    // for (let element of arrayParentheses) {
-    //     word = word.replace(element[0], '');
-    // }
-
+    if (arrayHook.length > 0) {
+        Hook(arrayHook, result);
+    }
     if (arrayParentheses.length > 0) {
-        Parentheses(arrayParentheses, obj);
+        Parentheses(arrayParentheses, result);
     }
-    if (word.length > 0) {
-        SimpleAtome(word, obj);
+    if (formula.length > 0) {
+        SimpleAtome(formula, result);
     }
 
-    return obj;
+    return result;
 }
 
-function SimpleAtome(word, obj, numParenthese = 1) {
-    var atomes = [...word.matchAll(/[A-Z]{1}[a-z]*[0-9]*/gm)];
-    for (let element of atomes) {
-        var numAtome = (/[0-9]/gm).exec(element[0]);
-        var letterAtome = (/[A-Z]{1}[a-z]{0,}/gm).exec(element[0])[0];
-        var keys = Object.keys(obj);
+function SimpleAtome(formula, result, numParenthese = 1, numHook = 0) {
+    var atomes = [...formula.matchAll(/[A-Z]{1}[a-z]*[0-9]*/gm)];
+    for (let atome of atomes) {
+        var numAtome = (/[0-9]/gm).exec(atome[0]);
+        var letterAtome = (/[A-Z]{1}[a-z]{0,}/gm).exec(atome[0])[0];
+        var keys = Object.keys(result);
         if (keys.includes(letterAtome)) {
-            obj[letterAtome] = numAtome !== null ? obj[letterAtome] + Number(numAtome[0]) : obj[letterAtome] + (1 * numParenthese);
+            if (numAtome !== null) {
+                result[letterAtome] = result[letterAtome] + Number(numAtome[0]) + (Number(numAtome[0]) * numHook);
+            } else {
+                result[letterAtome] = result[letterAtome] + (1 * numParenthese) + ((1 * numParenthese) * numHook);
+            }
         } else {
-            obj[letterAtome] = numAtome !== null ? Number(numAtome[0]) * numParenthese : 1 * numParenthese;
+            if (numAtome !== null) {
+                result[letterAtome] = numHook === 0 ? Number(numAtome[0]) * numParenthese : (Number(numAtome[0]) * numParenthese * numHook);
+            } else {
+                result[letterAtome] = numHook === 0 ? 1 * numParenthese : (numParenthese * numHook);
+            }
         }
     }
 }
 
-function Parentheses(array, obj) {
-    for (let element of array) {
-        var numParenthese = Number(element[0][element[0].length - 1]);
-        var atomes = [...element[0].matchAll(/[A-Z]{1}[a-z]*[0-9]*/gm)];
+function Parentheses(formulas, result, numParenthese = 1, numHook = 0) {
+    for (let formula of formulas) {
+        numParenthese = Number(formula[0][formula[0].length - 1]);
+        var atomes = [...formula[0].matchAll(/[A-Z]{1}[a-z]*[0-9]*/gm)];
         for (let i = 0; i < atomes.length; i++) {
             var atome = atomes[i][0];
-            SimpleAtome(atome, obj, numParenthese);
+            SimpleAtome(atome, result, numParenthese, numHook);
+        }
+    }
+
+}
+
+function Hook(formulas, result) {
+    var regexParenthese = /(\((.*?)\))+.{1}/gm;
+    for (let formula of formulas) {
+        var numHook = Number(formula[0][formula[0].length - 1]);
+        var arrayParentheses = [...formula[1].matchAll(regexParenthese)];
+        var newFormula = '';
+        
+        for (let par of arrayParentheses) {
+            newFormula = formula[1].replace(par[0], '');
+        }
+
+        if (arrayParentheses.length > 0) {
+            Parentheses(arrayParentheses, result, 1, numHook);
+        }
+        if (newFormula.length > 0) {
+            SimpleAtome(newFormula, result, 1, numHook);
         }
     }
 }
