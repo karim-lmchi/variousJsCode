@@ -1,3 +1,5 @@
+// Input chemical formula
+// Output an object with number of all different atomes
 function MoleculeToAtome() {
     var formula = 'ABC4[F(GBH2)2]2';
     var result = {};
@@ -27,6 +29,14 @@ function MoleculeToAtome() {
     return result;
 }
 
+/**
+ * 
+ * @param {String} formula, Only one atom or a part of the chemical formula
+ * @param {Object} result, An object that we fill
+ * @param {Number} numParenthese, Number before parentheses
+ * @param {Number} numHook, Number before hooks
+ * @result void
+ */
 function SimpleAtome(formula, result, numParenthese = 1, numHook = 0) {
     var atomes = [...formula.matchAll(/[A-Z]{1}[a-z]*[0-9]*/gm)];
     for (let atome of atomes) {
@@ -49,6 +59,14 @@ function SimpleAtome(formula, result, numParenthese = 1, numHook = 0) {
     }
 }
 
+/**
+ * 
+ * @param {String[]} formulas, An array of all part of the chemical formula between parentheses
+ * @param {Object} result, An object that we fill
+ * @param {Number} numParenthese, Number before parentheses
+ * @param {Number} numHook, Number before hooks
+ * @result void
+ */
 function Parentheses(formulas, result, numParenthese = 1, numHook = 0) {
     for (let formula of formulas) {
         numParenthese = Number(formula[0][formula[0].length - 1]);
@@ -61,6 +79,12 @@ function Parentheses(formulas, result, numParenthese = 1, numHook = 0) {
 
 }
 
+/**
+ * 
+ * @param {*} formulas, An array of all part of the chemical formula between hooks
+ * @param {*} result, , An object that we fill
+ * @result void 
+ */
 function Hook(formulas, result) {
     var regexParenthese = /(\((.*?)\))+.{1}/gm;
     for (let formula of formulas) {
