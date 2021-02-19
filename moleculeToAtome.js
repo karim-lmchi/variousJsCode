@@ -7,19 +7,23 @@ function MoleculeToAtome() {
     var regexParenthese = /(\((.*?)\))+.{1}/gm;
     var regexHook = /\[(.*?)\]+.{1}/gm;
     
-    var arrayHook = [...formula.matchAll(regexHook)];
-    for (let element of arrayHook) {
-        formula = formula.replace(element[0], '');
+    var arrayHook = formula.match(regexHook);
+    if (arrayHook !== null) {
+        for (let element of arrayHook) {
+            formula = formula.replace(element, '');
+        }
     }
-    var arrayParentheses = [...formula.matchAll(regexParenthese)];
-    for (let element of arrayParentheses) {
-        formula = formula.replace(element[0], '');
+    var arrayParentheses = formula.match(regexParenthese);
+    if (arrayParentheses !== null) {
+        for (let element of arrayParentheses) {
+            formula = formula.replace(element, '');
+        }
     }
 
-    if (arrayHook.length > 0) {
+    if (arrayHook !== null) {
         Hook(arrayHook, result);
     }
-    if (arrayParentheses.length > 0) {
+    if (arrayParentheses !== null) {
         Parentheses(arrayParentheses, result);
     }
     if (formula.length > 0) {
@@ -38,10 +42,10 @@ function MoleculeToAtome() {
  * @result void
  */
 function SimpleAtome(formula, result, numParenthese = 1, numHook = 0) {
-    var atomes = [...formula.matchAll(/[A-Z]{1}[a-z]*[0-9]*/gm)];
+    var atomes = formula.match(/[A-Z]{1}[a-z]*[0-9]*/gm);
     for (let atome of atomes) {
-        var numAtome = (/[0-9]/gm).exec(atome[0]);
-        var letterAtome = (/[A-Z]{1}[a-z]{0,}/gm).exec(atome[0])[0];
+        var numAtome = (/[0-9]/gm).exec(atome);
+        var letterAtome = (/[A-Z]{1}[a-z]{0,}/gm).exec(atome)[0];
         var keys = Object.keys(result);
         if (keys.includes(letterAtome)) {
             if (numAtome !== null) {
@@ -69,10 +73,10 @@ function SimpleAtome(formula, result, numParenthese = 1, numHook = 0) {
  */
 function Parentheses(formulas, result, numParenthese = 1, numHook = 0) {
     for (let formula of formulas) {
-        numParenthese = Number(formula[0][formula[0].length - 1]);
-        var atomes = [...formula[0].matchAll(/[A-Z]{1}[a-z]*[0-9]*/gm)];
+        numParenthese = Number(formula[formula.length - 1]);
+        var atomes = formula.match(/[A-Z]{1}[a-z]*[0-9]*/gm);
         for (let i = 0; i < atomes.length; i++) {
-            var atome = atomes[i][0];
+            var atome = atomes[i];
             SimpleAtome(atome, result, numParenthese, numHook);
         }
     }
@@ -88,12 +92,12 @@ function Parentheses(formulas, result, numParenthese = 1, numHook = 0) {
 function Hook(formulas, result) {
     var regexParenthese = /(\((.*?)\))+.{1}/gm;
     for (let formula of formulas) {
-        var numHook = Number(formula[0][formula[0].length - 1]);
-        var arrayParentheses = [...formula[1].matchAll(regexParenthese)];
+        var numHook = Number(formula[formula.length - 1]);
+        var arrayParentheses = formula.match(regexParenthese);
         var newFormula = '';
         
         for (let par of arrayParentheses) {
-            newFormula = formula[1].replace(par[0], '');
+            newFormula = formula.replace(par, '');
         }
 
         if (arrayParentheses.length > 0) {
